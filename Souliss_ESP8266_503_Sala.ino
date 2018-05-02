@@ -175,7 +175,7 @@ void loop()
 			//Souliss_DigIn2State(PIN_BUTT_1, Souliss_T1n_OnCmd, Souliss_T1n_OffCmd, memory_map, T_RELE_1);
 			//Souliss_DigIn2State(PIN_BUTT_2, Souliss_T1n_OnCmd, Souliss_T1n_OffCmd, memory_map, T_RELE_2);
 
-			butt_1_new = digitalRead(PIN_BUTT_1);
+			/*butt_1_new = digitalRead(PIN_BUTT_1);
 			if (butt_1_current != butt_1_new) {
 				mInput(T_RELE_1) = Souliss_T1n_ToggleCmd;
 				butt_1_current = butt_1_new;
@@ -185,7 +185,7 @@ void loop()
 			if (butt_2_current != butt_2_new) {
 				mInput(T_RELE_2) = Souliss_T1n_ToggleCmd;
 				butt_2_current = butt_2_new;
-			}
+			}*/
 
 			/*if (PIN_BUTT_2 != VecchioINT);
 			{
@@ -202,8 +202,8 @@ void loop()
 		}
 		FAST_90ms() {
 			//Gestisco i Relè
-			DigOut(PIN_RELE_1, Souliss_T1n_Coil, T_RELE_1);
-			DigOut(PIN_RELE_2, Souliss_T1n_Coil, T_RELE_2);
+			//DigOut(PIN_RELE_1, Souliss_T1n_Coil, T_RELE_1);
+			//DigOut(PIN_RELE_2, Souliss_T1n_Coil, T_RELE_2);
 			//Gestisco il Led
 			DigOut(PIN_LED, Souliss_T1n_Coil, T_LED);
 			//Check if joined and take control of the led
@@ -219,9 +219,33 @@ void loop()
 		}
 		FAST_110ms() { 
 			//Apply logic if statuses changed
+			//Logic_SimpleLight(T_RELE_1);
+			//Logic_SimpleLight(T_RELE_2);
+			Logic_SimpleLight(T_LED);
+
+		}
+
+		FAST_210ms() {
+			//Verifico che l'interruttore non cambi posizione in caso invio il toggle
+			butt_1_new = digitalRead(PIN_BUTT_1);
+			if (butt_1_current != butt_1_new) {
+				mInput(T_RELE_1) = Souliss_T1n_ToggleCmd;
+				butt_1_current = butt_1_new;
+			}
+
+			butt_2_new = digitalRead(PIN_BUTT_2);
+			if (butt_2_current != butt_2_new) {
+				mInput(T_RELE_2) = Souliss_T1n_ToggleCmd;
+				butt_2_current = butt_2_new;
+			}
+
+			//Gestisco i Relè
+			DigOut(PIN_RELE_1, Souliss_T1n_Coil, T_RELE_1);
+			DigOut(PIN_RELE_2, Souliss_T1n_Coil, T_RELE_2);
+
+			//Apply logic if statuses changed
 			Logic_SimpleLight(T_RELE_1);
 			Logic_SimpleLight(T_RELE_2);
-			Logic_SimpleLight(T_LED);
 
 		}
 
