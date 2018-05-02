@@ -62,6 +62,12 @@ byte led_status = 0;
 byte joined = 0;
 U8 value_hold = 0x068;
 
+int butt_1_current = 0;
+int butt_1_new = 0;
+
+int butt_2_current = 0;
+int butt_2_new = 0;
+
 void setup()
 {  
 	#ifdef SERIAL_DEBUG
@@ -119,6 +125,19 @@ void setup()
 		Serial.print("Gateway: ");
 		Serial.println("Node Initialized");
 	#endif
+
+	//Leggo lo stato degli interruttori
+	int butt_1_current = digitalRead(PIN_BUTT_1);
+	int butt_2_current = digitalRead(PIN_BUTT_2);
+
+	#ifdef SERIAL_DEBUG
+		Serial.print("Setup Interruttore 1: ");
+		Serial.println(butt_1_current);
+		Serial.print("Setup Interruttore 2: ");
+		Serial.println(butt_2_current);
+	#endif
+
+
 }
 
 void loop()
@@ -126,8 +145,11 @@ void loop()
     // Here we start to play
     EXECUTEFAST() {                     
         UPDATEFAST();   
-        
-		FAST_50ms() {   // We process the logic and relevant input and output every 50 milliseconds
+		
+		FAST_50ms() {
+		}
+
+		FAST_70ms() {   // We process the logic and relevant input and output every 50 milliseconds
 
 			// Gestisce il pulsante di Reset e il Led
 			// se si preme il punsante di fa il toggle del led, se si preme a lungo si resetta la scheda
@@ -147,15 +169,38 @@ void loop()
 			}
 
 			//Le 2 righe seguenti gestiscono gli interruttori facendoli diventare Bistabili/Deviatori con l'App
-			Souliss_DigIn2State(PIN_BUTT_1, Souliss_T1n_ToggleCmd, Souliss_T1n_ToggleCmd, memory_map, T_RELE_1);
-			Souliss_DigIn2State(PIN_BUTT_2, Souliss_T1n_ToggleCmd, Souliss_T1n_ToggleCmd, memory_map, T_RELE_2);
+			//Souliss_DigIn2State(PIN_BUTT_1, Souliss_T1n_ToggleCmd, Souliss_T1n_ToggleCmd, memory_map, T_RELE_1);
+			//Souliss_DigIn2State(PIN_BUTT_2, Souliss_T1n_ToggleCmd, Souliss_T1n_ToggleCmd, memory_map, T_RELE_2);
+
+			//Souliss_DigIn2State(PIN_BUTT_1, Souliss_T1n_OnCmd, Souliss_T1n_OffCmd, memory_map, T_RELE_1);
+			//Souliss_DigIn2State(PIN_BUTT_2, Souliss_T1n_OnCmd, Souliss_T1n_OffCmd, memory_map, T_RELE_2);
+
+			butt_1_new = digitalRead(PIN_BUTT_1);
+			if (butt_1_current != butt_1_new) {
+				mInput(T_RELE_1) = Souliss_T1n_ToggleCmd;
+				butt_1_current = butt_1_new;
+			}
+
+			butt_2_new = digitalRead(PIN_BUTT_2);
+			if (butt_2_current != butt_2_new) {
+				mInput(T_RELE_2) = Souliss_T1n_ToggleCmd;
+				butt_2_current = butt_2_new;
+			}
+
+			/*if (PIN_BUTT_2 != VecchioINT);
+			{
+				mInput(T_RELE_2) = Souliss_T1n_ToggleCmd;
+				VecchioINT = PIN_BUTT_2;
+			}
+			Logic_T11(T_RELE_2);*/
+
 			//Le 2 righe seguenti gestiscono i pulsanti
 			//Souliss_LowDigIn(PIN_BUTT_1, Souliss_T1n_ToggleCmd, memory_map, T_RELE_1);
 			//Souliss_LowDigIn(PIN_BUTT_2, Souliss_T1n_ToggleCmd, memory_map, T_RELE_2);
 
 			
 		}
-			FAST_70ms() {
+		FAST_90ms() {
 			//Gestisco i Relè
 			DigOut(PIN_RELE_1, Souliss_T1n_Coil, T_RELE_1);
 			DigOut(PIN_RELE_2, Souliss_T1n_Coil, T_RELE_2);
@@ -172,7 +217,7 @@ void loop()
 				}
 			}
 		}
-		FAST_90ms() { 
+		FAST_110ms() { 
 			//Apply logic if statuses changed
 			Logic_SimpleLight(T_RELE_1);
 			Logic_SimpleLight(T_RELE_2);
